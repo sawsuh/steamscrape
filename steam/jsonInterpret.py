@@ -15,18 +15,19 @@ for game in data:
         #posprop = None
         continue
     try:
-        discountprice = float(game["discountprice"][3:])
-        oldprice = float(game["oldprice"][3:])
-        fraction = 100*(1 - discountprice/oldprice)
-        group = math.floor(fraction/10)
+#        discountprice = float(game["discountprice"][3:])
+#        oldprice = float(game["oldprice"][3:])
+        price = float(game["price"][3:])
+        #fraction = #100*(1 - discountprice/oldprice)
+        group = math.floor(price/20)
     except ValueError:
         continue
-    tuplist.append((title, group, fraction, posprop, discountprice))
+    tuplist.append((title, group, posprop, price))
 
-newlistIntermediate = sorted(tuplist, key = lambda x : x[3], reverse=True)
-newlist = sorted(newlistIntermediate, key = lambda x : x[1], reverse=True)
-for title, g, frac, posprop, p in newlist:
+newlistIntermediate = sorted(tuplist, key = lambda x : x[2], reverse=True)
+newlist = sorted(newlistIntermediate, key = lambda x : x[1])
+for title, g, posprop, p in newlist:
     #if posprop:
-    print(f'{title} - ${p} {posprop:.2f}% ({frac:.2f}% off)')
+    print(f'{title} - ${p} {posprop:.2f}%')
     #else:
         #print(f'{title} - ${p} ({frac:.2f}% off)')

@@ -13,32 +13,32 @@ class SteamscrapeSpider(scrapy.Spider):
 
     def parse(self, response):
         for result in response.css("a.search_result_row"):
-            #price = result.css("div.search_price::text").get().strip()
+            price = result.css("div.search_price::text").get().strip()
             link = result.css("*::attr(href)").get().strip()
-            # if not price:
-            #    try:
-            #        price = result.css(
-            #            "div.discounted::text").extract()[-1].strip()
-            #    except IndexError:
-            #        price = "unknown"
-            # cbargs = {"title": result.css("span.title::text").get(), "price": price}
-            try:
-                price = result.css(
-                    "div.discounted::text").extract()[-1].strip()
-                oldprice = result.css("div.discounted strike::text").get().strip()
-            except:
-                continue
-            cbargs = {
-                "title": result.css("span.title::text").get(),
-                "oldprice": oldprice,
-                "discountprice": price,
-            }
+            if not price:
+               try:
+                   price = result.css(
+                       "div.discounted::text").extract()[-1].strip()
+               except IndexError:
+                   price = "unknown"
+            cbargs = {"title": result.css("span.title::text").get(), "price": price}
+            #try:
+            #    price = result.css(
+            #        "div.discounted::text").extract()[-1].strip()
+            #    oldprice = result.css("div.discounted strike::text").get().strip()
+            #except:
+            #    continue
+            #cbargs = {
+            #    "title": result.css("span.title::text").get(),
+            #    "oldprice": oldprice,
+            #    "discountprice": price,
+            #}
             yield scrapy.Request(link, cookies = {'birthtime': '568022401'}, callback=self.parsegame, cb_kwargs=cbargs)
         nextlink = response.css("a.pagebtn::attr(href)").extract()[-1]
         if nextlink is not None:
             yield scrapy.Request(nextlink, callback=self.parse)
 
-    def parsegame(self, response, title, oldprice, discountprice):
+    def parsegame(self, response, title, price):
         try:
             totalreviews = response.css(
                 "span.user_reviews_count::text").get()[1:-1]
@@ -52,8 +52,7 @@ class SteamscrapeSpider(scrapy.Spider):
             good = "unknown"
         yield {
             "title": title,
-            "discountprice": discountprice,
-            "oldprice": oldprice,
+            "price": price,
             "totalreviews": totalreviews,
             "posreviews": good,
         }
